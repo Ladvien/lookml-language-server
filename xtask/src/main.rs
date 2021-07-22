@@ -31,7 +31,7 @@ SUBCOMMANDS:
     args.remove(0);
 
     let cargo_args = if let Some(dash_dash) = args.iter().position(|arg| arg == "--") {
-        let c = args.drain(dash_dash + 1 ..).collect();
+        let c = args.drain(dash_dash + 1..).collect();
         args.pop();
         c
     } else {
@@ -46,7 +46,7 @@ SUBCOMMANDS:
                 println!("{}\n", help);
             }
             Ok(())
-        },
+        }
         Some("build") => subcommand::cargo::build(&mut args, cargo_args),
         Some("check") => subcommand::cargo::check(&mut args, cargo_args),
         Some("clippy") => subcommand::cargo::clippy(&mut args, cargo_args),
@@ -58,7 +58,7 @@ SUBCOMMANDS:
         Some("help") => {
             println!("{}\n", help);
             Ok(())
-        },
+        }
         Some(subcommand) => Err(format!("unknown subcommand: {}", subcommand).into()),
     };
     crate::util::handle_result(result);
@@ -301,7 +301,7 @@ FLAGS:
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.env("RUSTFLAGS", "-Dwarnings");
-            cmd.args(&["test", "--examples", "--lib", "--tests"]);
+            cmd.args(&["test", "--lookml-ls", "--lib", "--tests"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "lspower"]);
             cmd.args(cargo_args);

@@ -9,6 +9,11 @@
   "categories": [
     "Other"
   ],
+  "configurationDefaults": {
+    "lkml": {
+      "editor.semanticHighlighting.enabled": true
+    }
+  },
   "activationEvents": [
     "onCommand:lookml-language-server.helloWorld",
     "onLanguage:lkml"

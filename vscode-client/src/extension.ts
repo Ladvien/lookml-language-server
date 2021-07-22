@@ -9,7 +9,7 @@ import url = require('url');
 
 import { spawn, ChildProcess } from 'child_process';
 import { ExtensionContext, workspace, Uri, TextDocument, WorkspaceConfiguration, OutputChannel, window, WorkspaceFolder } from 'vscode';
-import { StreamInfo, LanguageClientOptions, LanguageClient } from 'vscode-languageclient/node';
+import { StreamInfo, LanguageClientOptions, LanguageClient, Middleware, ProvideDocumentSymbolsSignature } from 'vscode-languageclient/node';
 
 // this method is called when your extension is activated
 // // your extension is activated the very first time the command is executed
@@ -32,41 +32,42 @@ import { StreamInfo, LanguageClientOptions, LanguageClient } from 'vscode-langua
 // }
 
 export function activate(context: vscode.ExtensionContext) {
-    let connectionInfo = {
-        port: 5007,
-        host: "127.0.0.1"
+  let connectionInfo = {
+    port: 5007,
+    host: "127.0.0.1"
+  };
+
+  let serverOptions = () => {
+    // Connect to language server via socket
+    let socket = net.connect(connectionInfo);
+    let result: StreamInfo = {
+      writer: socket,
+      reader: socket
     };
+    return Promise.resolve(result);
+  };
 
-    let serverOptions = () => {
-        // Connect to language server via socket
-        let socket = net.connect(connectionInfo);
-        let result: StreamInfo = {
-            writer: socket,
-            reader: socket
-        };
-        return Promise.resolve(result);
-    };
+  // Options to control the language client
+  let clientOptions: LanguageClientOptions = {
+    // Register the server for plain text documents
+    documentSelector: [{ scheme: 'file', language: 'lkml' }],
+    synchronize: {
+      fileEvents: vscode.workspace.createFileSystemWatcher('*.lkml')
+    }
+  };
 
-    // Options to control the language client
-    let clientOptions: LanguageClientOptions = {
-        // Register the server for plain text documents
-        documentSelector: [{ scheme: 'file', language: 'lkml' }],
-        synchronize: {
-            fileEvents: vscode.workspace.createFileSystemWatcher('*.lkml')
-        }
-    };
 
-    // Create the language client and start the client.
-    const client = new LanguageClient(
-        'languageServerExample',
-        'Language Server Example',
-        serverOptions,
-        clientOptions
-    );
+  // Create the language client and start the client.
+  const client = new LanguageClient(
+    'languageServerExample',
+    'Language Server Example',
+    serverOptions,
+    clientOptions
+  );
 
-    console.log("Starting client.");
-    // Start the client. This will also launch the server
-    client.start();
+  console.log("Starting client.");
+  // Start the client. This will also launch the server
+  client.start();
 }
 // this method is called when your extension is deactivated
 export function deactivate() { }
